@@ -239,6 +239,15 @@ namespace LinqConsoleApp
                 Console.WriteLine(emp);
             }
 
+            var res31  = from emp in Emps
+                         orderby emp.Ename descending
+                         where emp.Job == "Frontend programmer" && emp.Salary > 1000
+                         select emp;
+            foreach (var e in res31)
+            {
+                Console.WriteLine(e);
+            }
+
         }
 
         /// <summary>
@@ -249,6 +258,8 @@ namespace LinqConsoleApp
             var maxSal = (from emp in Emps
                           select emp.Salary).Max();
             Console.WriteLine(maxSal);
+            var maxSal2 = Emps.Max(x => x.Salary);
+            Console.WriteLine(maxSal2);
         }
 
         /// <summary>
@@ -262,7 +273,12 @@ namespace LinqConsoleApp
             {
                 Console.WriteLine(emp);
             }
-
+            var res41 = from emp in Emps where emp.Salary == (from e in Emps select e.Salary).Max()
+                      select emp;
+            foreach (var emp in res41)
+            {
+                Console.WriteLine(emp);
+            }
         }
 
         /// <summary>
@@ -277,6 +293,17 @@ namespace LinqConsoleApp
             });
 
             foreach (var emp in res5)
+            {
+                Console.WriteLine(emp);
+            }
+
+            var res51 = from emp in Emps
+                      select new
+                      {
+                          Nazwisko = emp.Ename,
+                          Praca = emp.Job
+                      };
+            foreach (var emp in res51)
             {
                 Console.WriteLine(emp);
             }
@@ -298,7 +325,16 @@ namespace LinqConsoleApp
             {
                 Console.WriteLine(emp);
             }
-
+            var res61 = from emp in Emps join dept in Depts on emp.Deptno equals dept.Deptno
+                      select new
+                      {
+                          dept,
+                          emp
+                      };
+            foreach (var emp in res61)
+            {
+                Console.WriteLine(emp);
+            }
         }
 
         /// <summary>
@@ -317,6 +353,15 @@ namespace LinqConsoleApp
             {
                 Console.WriteLine(em);
             }
+            var res2 = Emps.GroupBy(emp => emp.Job).Select(zaw => new
+            {
+                Praca = zaw.Key,
+                LiczbaPracownikow = zaw.Count()
+            });
+            foreach (var em in res2)
+            {
+                Console.WriteLine(em);
+            }
         }
 
         /// <summary>
@@ -332,6 +377,8 @@ namespace LinqConsoleApp
                           Nazwisko = emp.Ename
                       };
             Console.WriteLine(res.Any());
+            var res2 = Emps.Where(emp => emp.Job == "Backend programmer").Any();
+            Console.WriteLine(res2);
         }
 
         /// <summary>
@@ -343,7 +390,11 @@ namespace LinqConsoleApp
             var res = Emps.Where(x => x.Job == "Frontend programmer").OrderByDescending(x => x.HireDate).FirstOrDefault();
 
                 Console.WriteLine(res);
-            
+            var res2 = (from emp in Emps
+                       orderby emp.HireDate descending
+                       where emp.Job == "Frontend programmer"
+                       select emp).FirstOrDefault();
+            Console.WriteLine(res2);
         }
 
         /// <summary>
@@ -353,21 +404,31 @@ namespace LinqConsoleApp
         /// </summary>
         public void Przyklad10Button_Click()
         {
-            var res1 = from emp in Emps
+            var res11 = from emp in Emps
                        select new
                        {
-                           Nazwisko = emp.Ename,
-                           Praca = emp.Job,
-                           Data = emp.HireDate
+                           Ename = emp.Ename,
+                           Job = emp.Job,
+                           HireDate = emp.HireDate
                        };
-            var res2 = from emp in Emps
+            var res12 = from emp in Emps
                        select new
                        {
-                           Nazwisko = "Brak wartosci",
-                           Praca = (string)null,
-                           Data = (DateTime?)null
+                           Ename = "Brak wartosci",
+                           Job = (string)null,
+                           HireDate = (DateTime?)null
                        };
-            foreach (var e in res1.Union(res2))
+            foreach (var e in res11.Union(res12))
+            {
+                Console.WriteLine(e);
+            }
+            var res2 = Emps.Select(emp => new
+            {
+                emp.Ename,
+                emp.Job,
+                emp.HireDate
+            }).Union(new[] { new { Ename = "Brak wartości", Job = (string)null, HireDate = (DateTime?)null } });
+            foreach (var e in res2)
             {
                 Console.WriteLine(e);
             }
@@ -376,15 +437,11 @@ namespace LinqConsoleApp
         //Znajdź pracownika z najwyższą pensją wykorzystując metodę Aggregate()
         public void Przyklad11()
         {
-            var res = (from emp in Emps
-                       select new
-                       {
-                           Nazwisko = emp.Ename,
-                           Praca = emp.Job,
-                           Data = emp.HireDate,
-                           Pensja = emp.Salary
-                       }).Aggregate((emp, next) => emp.Pensja > next.Pensja ? emp : next);
+            var res = (from emp in Emps select emp
+                       ).Aggregate((emp, next) => emp.Salary > next.Salary ? emp : next);
             Console.WriteLine(res);
+            var res2 = Emps.Aggregate((res, next) => next.Salary > res.Salary ? next : res);
+            Console.WriteLine(res2);
         }
 
         //Z pomocą języka LINQ i metody SelectMany wykonaj złączenie
@@ -397,6 +454,17 @@ namespace LinqConsoleApp
                 dept
             });
             foreach (var e in res)
+            {
+                Console.WriteLine(e);
+            }
+            var res2 = from emp in Emps
+                      from dept in Depts
+                      select new
+                      {
+                          emp,
+                          dept
+                      };
+            foreach (var e in res2)
             {
                 Console.WriteLine(e);
             }
